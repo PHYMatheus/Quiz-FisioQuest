@@ -1,57 +1,28 @@
 // =============================================================================
 // CAMADA DE DADOS (ranking + contador de alcance)
 // =============================================================================
-// Hoje (por padrão) tudo é salvo no localStorage do navegador — funciona pra
-// testar sozinho, mas cada dispositivo tem seus próprios dados, sem
-// compartilhar com os outros.
+// Versão ONLINE — fala direto com o Firestore usando a REST API dele (chamadas
+// HTTP comuns, do tipo fetch), em vez do SDK oficial do Firebase.
 //
-// Para deixar ONLINE e compartilhado entre todos os alunos:
-//
-//   1. Crie um projeto em https://console.firebase.google.com
-//   2. Ative o "Firestore Database" (modo de teste é suficiente pra começar)
-//   3. Em "Configurações do projeto" copie o objeto de configuração (firebaseConfig)
-//   4. Cole esse objeto na constante FIREBASE_CONFIG logo abaixo
-//   5. Comente o bloco "VERSÃO LOCAL (localStorage)" e descomente o bloco
-//      "VERSÃO ONLINE (Firestore)" mais abaixo neste arquivo
-//   6. Rode "npm install" novamente (o firebase já está no package.json)
-//
-// Nenhum outro arquivo do projeto precisa mudar — todos os componentes só
-// chamam carregarRanking(), salvarResultado(), registrarAcesso(),
-// carregarComentarios() e salvarComentario(), então a troca é só aqui.
-//
-// SOBRE O LIMITE DO RANKING (TOP_RANKING):
-// carregarRanking() só traz os melhores colocados, não a lista inteira. Isso
-// importa principalmente na versão Firestore: sem esse limite, toda vez que
-// alguém abre a tela de Ranking o app baixaria TODOS os resultados já
-// salvos — com poucos jogadores não faz diferença, mas com uma turma grande
-// jogando ao mesmo tempo isso fica lento e consome a cota gratuita de
-// leituras rapidinho. Com o limite, cada consulta já pede só os TOP_RANKING
-// melhores direto no servidor.
-//
-// SOBRE O CONTADOR DE ALCANCE:
-// Como o jogo não tem login, "reconhecer a mesma pessoa" é feito através de
-// um identificador salvo no próprio navegador do aluno (device id). Na
-// primeira vez que ele abre o link, o contador soma 1 e esse id fica salvo.
-// Nas próximas vezes, o id já existe e o contador NÃO soma de novo. A
-// limitação (inevitável sem login) é que, se o aluno limpar os dados do
-// navegador ou abrir em outro navegador/celular, ele conta como uma nova
-// pessoa.
+// POR QUÊ? O SDK oficial (firebase/firestore) usa um tipo de conexão de longa
+// duração ("streaming"/long-polling) que trava em redes com firewall ou
+// antivírus mais restritivos — mesmo com a internet normal funcionando (foi
+// exatamente o que aconteceu nos testes: o site carregava, mas o SDK nunca
+// conseguia terminar de salvar). Chamadas HTTP comuns (como as desta versão)
+// usam o mesmo mecanismo básico que qualquer site usa pra carregar, então
+// atravessam praticamente qualquer rede sem problema.
 // =============================================================================
 
 const FIREBASE_CONFIG = {
-  apiKey: "COLE_AQUI",
-  authDomain: "COLE_AQUI",
-  projectId: "COLE_AQUI",
-  storageBucket: "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId: "COLE_AQUI",
+  apiKey: "AIzaSyBUGEQeXn-iEIIhW4oYbH_bbEfX3zm7M8U",
+  projectId: "quiz-fisioquest",
 };
 
-// Quantos colocados o ranking mostra no máximo (ver nota acima).
 const TOP_RANKING = 20;
 
-// Gera (ou reaproveita) um identificador único e persistente para este
-// navegador/dispositivo. É a base de como sabemos "é a mesma pessoa".
+const BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/default/documents`;
+const CHAVE_API = `key=${FIREBASE_CONFIG.apiKey}`;
+
 function obterIdDispositivo() {
   const CHAVE_ID = "quiz_device_id";
   let id = localStorage.getItem(CHAVE_ID);
@@ -63,131 +34,173 @@ function obterIdDispositivo() {
 }
 
 // -----------------------------------------------------------------------------
-// VERSÃO LOCAL (localStorage) — ativa por padrão
+// Conversores entre objetos JS normais e o formato "tipado" que a REST API
+// do Firestore exige (ex: { nome: "Ana" } vira { nome: { stringValue: "Ana" } }).
 // -----------------------------------------------------------------------------
-const CHAVE_RANKING = "quiz_ranking";
-const CHAVE_CONTADOR = "quiz_visitas";
-const CHAVE_JA_CONTADO = "quiz_ja_contado";
-const CHAVE_COMENTARIOS = "quiz_comentarios";
+function paraCamposFirestore(objeto) {
+  const campos = {};
+  for (const [chave, valor] of Object.entries(objeto)) {
+    if (typeof valor === "string") {
+      campos[chave] = { stringValue: valor };
+    } else if (typeof valor === "number") {
+      campos[chave] = Number.isInteger(valor) ? { integerValue: String(valor) } : { doubleValue: valor };
+    } else if (typeof valor === "boolean") {
+      campos[chave] = { booleanValue: valor };
+    } else {
+      campos[chave] = { stringValue: String(valor) };
+    }
+  }
+  return campos;
+}
 
+function deCamposFirestore(campos) {
+  const objeto = {};
+  for (const [chave, valorTipado] of Object.entries(campos || {})) {
+    if ("stringValue" in valorTipado) objeto[chave] = valorTipado.stringValue;
+    else if ("integerValue" in valorTipado) objeto[chave] = Number(valorTipado.integerValue);
+    else if ("doubleValue" in valorTipado) objeto[chave] = Number(valorTipado.doubleValue);
+    else if ("booleanValue" in valorTipado) objeto[chave] = valorTipado.booleanValue;
+    else if ("timestampValue" in valorTipado) objeto[chave] = valorTipado.timestampValue;
+  }
+  return objeto;
+}
+
+// Dá um tempo máximo de espera pra qualquer chamada de rede. Sem isso, se a
+// conexão travar (como estava acontecendo), o app ficaria preso em
+// "Salvando..." pra sempre, sem nunca mostrar um erro pro usuário.
+async function buscarComTimeout(url, opcoes = {}, tempoLimiteMs = 10000) {
+  const controlador = new AbortController();
+  const timer = setTimeout(() => controlador.abort(), tempoLimiteMs);
+  try {
+    const resposta = await fetch(url, { ...opcoes, signal: controlador.signal });
+    return resposta;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// RANKING
+// -----------------------------------------------------------------------------
 export async function carregarRanking() {
   try {
-    const dados = localStorage.getItem(CHAVE_RANKING);
-    const lista = dados ? JSON.parse(dados) : [];
-    return lista.sort((a, b) => b.pontos - a.pontos).slice(0, TOP_RANKING);
-  } catch {
+    console.log("[FIREBASE] Buscando ranking...");
+    const resposta = await buscarComTimeout(`${BASE_URL}:runQuery?${CHAVE_API}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: "ranking" }],
+          orderBy: [{ field: { fieldPath: "pontos" }, direction: "DESCENDING" }],
+          limit: TOP_RANKING,
+        },
+      }),
+    });
+    if (!resposta.ok) throw new Error(`Falha na consulta (status ${resposta.status})`);
+    const linhas = await resposta.json();
+    const lista = linhas.filter((linha) => linha.document).map((linha) => deCamposFirestore(linha.document.fields));
+    console.log(`[FIREBASE] Ranking recebido: ${lista.length} documento(s).`);
+    return lista;
+  } catch (erro) {
+    console.error("[FIREBASE] ERRO ao buscar ranking:", erro);
     return [];
   }
 }
 
 export async function salvarResultado(entrada) {
-  const atual = await carregarRanking();
-  const novo = [...atual, entrada];
-  localStorage.setItem(CHAVE_RANKING, JSON.stringify(novo));
-  return novo;
-}
-
-// Comentários/feedbacks deixados pelos jogadores (reação em emoji + texto).
-export async function carregarComentarios() {
   try {
-    const dados = localStorage.getItem(CHAVE_COMENTARIOS);
-    return dados ? JSON.parse(dados) : [];
-  } catch {
-    return [];
+    console.log("[FIREBASE] Tentando salvar resultado:", entrada);
+    const resposta = await buscarComTimeout(`${BASE_URL}/ranking?${CHAVE_API}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: paraCamposFirestore(entrada) }),
+    });
+    if (!resposta.ok) {
+      const detalhe = await resposta.text();
+      throw new Error(`Falha ao salvar (status ${resposta.status}): ${detalhe}`);
+    }
+    console.log("[FIREBASE] Resultado salvo com sucesso!");
+  } catch (erro) {
+    console.error("[FIREBASE] ERRO ao salvar resultado:", erro);
   }
+  return carregarRanking();
 }
 
-export async function salvarComentario(entrada) {
-  const atual = await carregarComentarios();
-  const novo = [entrada, ...atual]; // mais recente primeiro
-  localStorage.setItem(CHAVE_COMENTARIOS, JSON.stringify(novo));
-  return novo;
-}
-
-// Chame isso uma vez quando o app abrir. Soma 1 no contador apenas se este
-// dispositivo/navegador ainda não tiver sido contado antes; caso contrário,
-// só devolve o total atual sem incrementar.
+// -----------------------------------------------------------------------------
+// CONTADOR DE ALCANCE (visitantes únicos)
+// -----------------------------------------------------------------------------
 export async function registrarAcesso() {
   try {
-    obterIdDispositivo(); // garante que o id exista, mesmo sem uso direto aqui
-    const jaContado = localStorage.getItem(CHAVE_JA_CONTADO);
-    const atual = Number(localStorage.getItem(CHAVE_CONTADOR) || "0");
+    const id = obterIdDispositivo();
+    const urlDocumento = `${BASE_URL}/visitantes/${id}?${CHAVE_API}`;
 
-    if (jaContado) {
-      return atual;
+    const respostaBusca = await buscarComTimeout(urlDocumento, { method: "GET" });
+    if (respostaBusca.status === 404) {
+      // Ainda não existe um documento para este dispositivo — cria agora.
+      await buscarComTimeout(urlDocumento, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: paraCamposFirestore({ primeiraVisita: new Date().toISOString() }) }),
+      });
     }
 
-    const novo = atual + 1;
-    localStorage.setItem(CHAVE_CONTADOR, String(novo));
-    localStorage.setItem(CHAVE_JA_CONTADO, "1");
-    return novo;
-  } catch {
+    const respostaContagem = await buscarComTimeout(`${BASE_URL}:runAggregationQuery?${CHAVE_API}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        structuredAggregationQuery: {
+          structuredQuery: { from: [{ collectionId: "visitantes" }] },
+          aggregations: [{ alias: "total", count: {} }],
+        },
+      }),
+    });
+    const resultado = await respostaContagem.json();
+    const total = Number(resultado?.[0]?.result?.aggregateFields?.total?.integerValue ?? 0);
+    console.log(`[FIREBASE] Visitantes únicos: ${total}`);
+    return total;
+  } catch (erro) {
+    console.error("[FIREBASE] ERRO ao registrar acesso:", erro);
     return 0;
   }
 }
 
 // -----------------------------------------------------------------------------
-// VERSÃO ONLINE (Firestore) — descomente este bloco e apague o bloco acima
-// depois de preencher o FIREBASE_CONFIG lá em cima.
+// COMENTÁRIOS
 // -----------------------------------------------------------------------------
-/*
-import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-  doc,
-  getDoc,
-  setDoc,
-  getCountFromServer,
-} from "firebase/firestore";
-
-const app = initializeApp(FIREBASE_CONFIG);
-const db = getFirestore(app);
-const NOME_COLECAO_RANKING = "ranking";
-const NOME_COLECAO_VISITANTES = "visitantes";
-const NOME_COLECAO_COMENTARIOS = "comentarios";
-
-// orderBy + limit aqui significam que o Firestore já devolve só os
-// TOP_RANKING melhores, direto do servidor — em vez de baixar a coleção
-// inteira e ordenar no navegador de cada jogador.
-export async function carregarRanking() {
-  const consulta = query(collection(db, NOME_COLECAO_RANKING), orderBy("pontos", "desc"), limit(TOP_RANKING));
-  const snapshot = await getDocs(consulta);
-  return snapshot.docs.map((doc) => doc.data());
-}
-
-export async function salvarResultado(entrada) {
-  await addDoc(collection(db, NOME_COLECAO_RANKING), entrada);
-  return carregarRanking();
-}
-
-// Cada dispositivo vira UM documento (id = device id). Salvar de novo o
-// mesmo id apenas atualiza o mesmo documento (não duplica), então o total
-// de documentos na coleção sempre representa visitantes únicos.
-export async function registrarAcesso() {
-  const id = obterIdDispositivo();
-  const refDoc = doc(db, NOME_COLECAO_VISITANTES, id);
-  const snap = await getDoc(refDoc);
-  if (!snap.exists()) {
-    await setDoc(refDoc, { primeiraVisita: new Date().toISOString() });
-  }
-  const contagem = await getCountFromServer(collection(db, NOME_COLECAO_VISITANTES));
-  return contagem.data().count;
-}
-
 export async function carregarComentarios() {
-  const snapshot = await getDocs(collection(db, NOME_COLECAO_COMENTARIOS));
-  const lista = snapshot.docs.map((doc) => doc.data());
-  return lista.sort((a, b) => new Date(b.data) - new Date(a.data));
+  try {
+    console.log("[FIREBASE] Buscando comentários...");
+    // Usamos runQuery (mesmo mecanismo do ranking) em vez do endpoint de
+    // "listar documentos" simples — esse último retorna 403 Forbidden nessa
+    // configuração de projeto, mesmo com as regras em modo de teste.
+    const resposta = await buscarComTimeout(`${BASE_URL}:runQuery?${CHAVE_API}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        structuredQuery: { from: [{ collectionId: "comentarios" }] },
+      }),
+    });
+    if (!resposta.ok) throw new Error(`Falha ao buscar comentários (status ${resposta.status})`);
+    const linhas = await resposta.json();
+    const lista = linhas.filter((linha) => linha.document).map((linha) => deCamposFirestore(linha.document.fields));
+    console.log(`[FIREBASE] Comentários recebidos: ${lista.length}`);
+    return lista.sort((a, b) => new Date(b.data) - new Date(a.data));
+  } catch (erro) {
+    console.error("[FIREBASE] ERRO ao buscar comentários:", erro);
+    return [];
+  }
 }
 
 export async function salvarComentario(entrada) {
-  await addDoc(collection(db, NOME_COLECAO_COMENTARIOS), entrada);
+  try {
+    const resposta = await buscarComTimeout(`${BASE_URL}/comentarios?${CHAVE_API}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: paraCamposFirestore(entrada) }),
+    });
+    if (!resposta.ok) throw new Error(`Falha ao salvar comentário (status ${resposta.status})`);
+  } catch (erro) {
+    console.error("[FIREBASE] ERRO ao salvar comentário:", erro);
+  }
   return carregarComentarios();
 }
-*/
