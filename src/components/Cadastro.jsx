@@ -30,6 +30,7 @@ export default function Cadastro({ aoConfirmar }) {
         value={nome}
         onChange={(e) => setNome(e.target.value)}
         placeholder="Seu nome"
+        maxLength={40}
         style={{ width: "100%", padding: "14px", borderRadius: "10px", border: "1px solid #245239", background: "#0A1F14", color: "#F5F5F2", fontSize: "16px", marginBottom: "16px", boxSizing: "border-box" }}
       />
 
@@ -40,6 +41,7 @@ export default function Cadastro({ aoConfirmar }) {
         value={disciplina}
         onChange={(e) => setDisciplina(e.target.value)}
         placeholder="Ex: Engenharia de Software"
+        maxLength={40}
         style={{ width: "100%", padding: "14px", borderRadius: "10px", border: "1px solid #245239", background: "#0A1F14", color: "#F5F5F2", fontSize: "16px", marginBottom: erro ? "8px" : "24px", boxSizing: "border-box" }}
       />
 

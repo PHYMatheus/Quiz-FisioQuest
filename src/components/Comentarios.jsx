@@ -103,6 +103,7 @@ export default function Comentarios({ aoVoltar }) {
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           placeholder="Seu nome (opcional)"
+          maxLength={40}
           style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #245239", background: "#123321", color: "#F5F5F2", fontSize: "16px", marginBottom: "10px", boxSizing: "border-box" }}
         />
 
@@ -112,6 +113,7 @@ export default function Comentarios({ aoVoltar }) {
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Conta pra gente o que achou do quiz..."
           rows={3}
+          maxLength={300}
           style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #245239", background: "#123321", color: "#F5F5F2", fontSize: "15px", marginBottom: erro ? "8px" : "12px", boxSizing: "border-box", resize: "vertical", fontFamily: "'Inter', sans-serif" }}
         />
 
