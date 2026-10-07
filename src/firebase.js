@@ -1,5 +1,5 @@
 // =============================================================================
-// CAMADA DE DADOS (ranking + contador de alcance)
+// CAMADA DE DADOS
 // =============================================================================
 
 const FIREBASE_CONFIG = {
@@ -22,10 +22,6 @@ function obterIdDispositivo() {
   return id;
 }
 
-// -----------------------------------------------------------------------------
-// Conversores entre objetos JS normais e o formato "tipado" que a REST API
-// do Firestore exige (ex: { nome: "Ana" } vira { nome: { stringValue: "Ana" } }).
-// -----------------------------------------------------------------------------
 function paraCamposFirestore(objeto) {
   const campos = {};
   for (const [chave, valor] of Object.entries(objeto)) {
@@ -54,9 +50,6 @@ function deCamposFirestore(campos) {
   return objeto;
 }
 
-// Dá um tempo máximo de espera pra qualquer chamada de rede. Sem isso, se a
-// conexão travar (como estava acontecendo), o app ficaria preso em
-// "Salvando..." pra sempre, sem nunca mostrar um erro pro usuário.
 async function buscarComTimeout(url, opcoes = {}, tempoLimiteMs = 10000) {
   const controlador = new AbortController();
   const timer = setTimeout(() => controlador.abort(), tempoLimiteMs);
@@ -73,7 +66,6 @@ async function buscarComTimeout(url, opcoes = {}, tempoLimiteMs = 10000) {
 // -----------------------------------------------------------------------------
 export async function carregarRanking() {
   try {
-    console.log("[FIREBASE] Buscando ranking...");
     const resposta = await buscarComTimeout(`${BASE_URL}:runQuery?${CHAVE_API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,22 +79,16 @@ export async function carregarRanking() {
     });
     if (!resposta.ok) throw new Error(`Falha na consulta (status ${resposta.status})`);
     const linhas = await resposta.json();
-    const lista = linhas.filter((linha) => linha.document).map((linha) => deCamposFirestore(linha.document.fields));
-    console.log(`[FIREBASE] Ranking recebido: ${lista.length} documento(s).`);
-    return lista;
+    return linhas.filter((linha) => linha.document).map((linha) => deCamposFirestore(linha.document.fields));
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao buscar ranking:", erro);
     return [];
   }
 }
 
-// Retorna { sucesso, ranking } em vez de só o ranking — assim quem chama
-// sabe se o salvamento realmente funcionou e pode avisar o jogador quando
-// não funcionou, em vez de fingir que deu tudo certo.
 export async function salvarResultado(entrada) {
   let sucesso = false;
   try {
-    console.log("[FIREBASE] Tentando salvar resultado:", entrada);
     const resposta = await buscarComTimeout(`${BASE_URL}/ranking?${CHAVE_API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -112,7 +98,6 @@ export async function salvarResultado(entrada) {
       const detalhe = await resposta.text();
       throw new Error(`Falha ao salvar (status ${resposta.status}): ${detalhe}`);
     }
-    console.log("[FIREBASE] Resultado salvo com sucesso!");
     sucesso = true;
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao salvar resultado:", erro);
@@ -131,7 +116,6 @@ export async function registrarAcesso() {
 
     const respostaBusca = await buscarComTimeout(urlDocumento, { method: "GET" });
     if (respostaBusca.status === 404) {
-      // Ainda não existe um documento para este dispositivo — cria agora.
       await buscarComTimeout(urlDocumento, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -150,9 +134,7 @@ export async function registrarAcesso() {
       }),
     });
     const resultado = await respostaContagem.json();
-    const total = Number(resultado?.[0]?.result?.aggregateFields?.total?.integerValue ?? 0);
-    console.log(`[FIREBASE] Visitantes únicos: ${total}`);
-    return total;
+    return Number(resultado?.[0]?.result?.aggregateFields?.total?.integerValue ?? 0);
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao registrar acesso:", erro);
     return 0;
@@ -164,10 +146,6 @@ export async function registrarAcesso() {
 // -----------------------------------------------------------------------------
 export async function carregarComentarios() {
   try {
-    console.log("[FIREBASE] Buscando comentários...");
-    // Usamos runQuery (mesmo mecanismo do ranking) em vez do endpoint de
-    // "listar documentos" simples — esse último retorna 403 Forbidden nessa
-    // configuração de projeto, mesmo com as regras em modo de teste.
     const resposta = await buscarComTimeout(`${BASE_URL}:runQuery?${CHAVE_API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,15 +156,13 @@ export async function carregarComentarios() {
     if (!resposta.ok) throw new Error(`Falha ao buscar comentários (status ${resposta.status})`);
     const linhas = await resposta.json();
     const lista = linhas.filter((linha) => linha.document).map((linha) => deCamposFirestore(linha.document.fields));
-    console.log(`[FIREBASE] Comentários recebidos: ${lista.length}`);
     return lista.sort((a, b) => new Date(b.data) - new Date(a.data));
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao buscar comentários:", erro);
     return [];
   }
 }
-// Mesma lógica do salvarResultado: devolve { sucesso, comentarios } em vez
-// de só a lista, pra tela poder avisar o jogador se o envio falhou.
+
 export async function salvarComentario(entrada) {
   let sucesso = false;
   try {

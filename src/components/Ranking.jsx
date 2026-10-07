@@ -1,6 +1,6 @@
 import { Medal, ArrowLeft } from "lucide-react";
 
-export default function Ranking({ ranking, aoVoltar, aoJogarNovamente }) {
+export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovamente }) {
   const rankingOrdenado = [...ranking].sort((a, b) => b.pontos - a.pontos);
 
   return (
@@ -26,7 +26,13 @@ export default function Ranking({ ranking, aoVoltar, aoJogarNovamente }) {
         </h2>
       </div>
 
-      {rankingOrdenado.length === 0 && (
+      {carregando && (
+        <p style={{ color: "#9A9DA6", fontSize: "14px", textAlign: "center" }}>
+          Carregando ranking...
+        </p>
+      )}
+
+      {!carregando && rankingOrdenado.length === 0 && (
         <p style={{ color: "#9A9DA6", fontSize: "14px", textAlign: "center" }}>
           Ninguém jogou ainda. Seja o primeiro!
         </p>

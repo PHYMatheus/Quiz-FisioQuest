@@ -16,17 +16,25 @@ export default function App() {
   const [pontuacao, setPontuacao] = useState(0);
   const [totalPerguntas, setTotalPerguntas] = useState(15);
   const [ranking, setRanking] = useState([]);
+  const [carregandoRanking, setCarregandoRanking] = useState(true);
   const [visitas, setVisitas] = useState(0);
   const [erroAoSalvar, setErroAoSalvar] = useState(false);
 
   useEffect(() => {
-    carregarRanking().then(setRanking);
-    registrarAcesso().then(setVisitas);
+  carregarRanking().then((lista) => {
+    setRanking(lista);
+    setCarregandoRanking(false);
+  });
+  registrarAcesso().then(setVisitas);
   }, []);
 
   function irParaRanking() {
-    carregarRanking().then(setRanking);
-    setTela("ranking");
+  setCarregandoRanking(true);
+  carregarRanking().then((lista) => {
+    setRanking(lista);
+    setCarregandoRanking(false);
+  });
+  setTela("ranking");
   }
 
   function confirmarCadastro({ nome, disciplina }) {
@@ -78,7 +86,7 @@ export default function App() {
               aoJogarNovamente={reiniciar}
             />
           )}
-          {tela === "ranking" && <Ranking ranking={ranking} aoVoltar={() => setTela("menu")} aoJogarNovamente={reiniciar} />}
+          {tela === "ranking" && (<Ranking ranking={ranking} carregando={carregandoRanking} aoVoltar={() => setTela("menu")} aoJogarNovamente={reiniciar} />)}
           {tela === "comentarios" && <Comentarios aoVoltar={() => setTela("menu")} />}
           {tela === "sobre" && <Sobre aoVoltar={() => setTela("menu")} />}
         </div>
