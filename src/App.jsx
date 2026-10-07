@@ -35,7 +35,7 @@ export default function App() {
     setTela("quiz");
   }
 
-    async function finalizarQuiz(pontos, total) {
+  async function finalizarQuiz(pontos, total) {
     setPontuacao(pontos);
     setTotalPerguntas(total);
     const resultado = { nome, disciplina, pontos, total, data: new Date().toISOString() };
@@ -50,13 +50,6 @@ export default function App() {
     setDisciplina("");
     setPontuacao(0);
     setErroAoSalvar(false);
-    setTela("menu");
-  }
-
-  function reiniciar() {
-    setNome("");
-    setDisciplina("");
-    setPontuacao(0);
     setTela("menu");
   }
 
