@@ -1,17 +1,6 @@
 // =============================================================================
 // CAMADA DE DADOS (ranking + contador de alcance)
 // =============================================================================
-// Versão ONLINE — fala direto com o Firestore usando a REST API dele (chamadas
-// HTTP comuns, do tipo fetch), em vez do SDK oficial do Firebase.
-//
-// POR QUÊ? O SDK oficial (firebase/firestore) usa um tipo de conexão de longa
-// duração ("streaming"/long-polling) que trava em redes com firewall ou
-// antivírus mais restritivos — mesmo com a internet normal funcionando (foi
-// exatamente o que aconteceu nos testes: o site carregava, mas o SDK nunca
-// conseguia terminar de salvar). Chamadas HTTP comuns (como as desta versão)
-// usam o mesmo mecanismo básico que qualquer site usa pra carregar, então
-// atravessam praticamente qualquer rede sem problema.
-// =============================================================================
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBUGEQeXn-iEIIhW4oYbH_bbEfX3zm7M8U",
@@ -107,7 +96,11 @@ export async function carregarRanking() {
   }
 }
 
+// Retorna { sucesso, ranking } em vez de só o ranking — assim quem chama
+// sabe se o salvamento realmente funcionou e pode avisar o jogador quando
+// não funcionou, em vez de fingir que deu tudo certo.
 export async function salvarResultado(entrada) {
+  let sucesso = false;
   try {
     console.log("[FIREBASE] Tentando salvar resultado:", entrada);
     const resposta = await buscarComTimeout(`${BASE_URL}/ranking?${CHAVE_API}`, {
@@ -120,10 +113,12 @@ export async function salvarResultado(entrada) {
       throw new Error(`Falha ao salvar (status ${resposta.status}): ${detalhe}`);
     }
     console.log("[FIREBASE] Resultado salvo com sucesso!");
+    sucesso = true;
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao salvar resultado:", erro);
   }
-  return carregarRanking();
+  const ranking = await carregarRanking();
+  return { sucesso, ranking };
 }
 
 // -----------------------------------------------------------------------------
@@ -190,8 +185,10 @@ export async function carregarComentarios() {
     return [];
   }
 }
-
+// Mesma lógica do salvarResultado: devolve { sucesso, comentarios } em vez
+// de só a lista, pra tela poder avisar o jogador se o envio falhou.
 export async function salvarComentario(entrada) {
+  let sucesso = false;
   try {
     const resposta = await buscarComTimeout(`${BASE_URL}/comentarios?${CHAVE_API}`, {
       method: "POST",
@@ -199,8 +196,10 @@ export async function salvarComentario(entrada) {
       body: JSON.stringify({ fields: paraCamposFirestore(entrada) }),
     });
     if (!resposta.ok) throw new Error(`Falha ao salvar comentário (status ${resposta.status})`);
+    sucesso = true;
   } catch (erro) {
     console.error("[FIREBASE] ERRO ao salvar comentário:", erro);
   }
-  return carregarComentarios();
+  const comentarios = await carregarComentarios();
+  return { sucesso, comentarios };
 }

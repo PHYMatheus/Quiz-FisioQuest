@@ -38,16 +38,21 @@ export default function Comentarios({ aoVoltar }) {
       texto: texto.trim(),
       data: new Date().toISOString(),
     };
-    const atualizado = await salvarComentario(entrada);
+    const { sucesso, comentarios: atualizado } = await salvarComentario(entrada);
     setComentarios(atualizado);
     setEnviando(false);
+
+    if (!sucesso) {
+      setErro("Não foi possível enviar agora (falha de conexão). Tenta de novo em alguns segundos.");
+      return;
+    }
+
     setEnviado(true);
     setNome("");
     setReacao(null);
     setTexto("");
     setTimeout(() => setEnviado(false), 2500);
   }
-
   return (
     <div>
       <button

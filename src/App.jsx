@@ -17,6 +17,7 @@ export default function App() {
   const [totalPerguntas, setTotalPerguntas] = useState(15);
   const [ranking, setRanking] = useState([]);
   const [visitas, setVisitas] = useState(0);
+  const [erroAoSalvar, setErroAoSalvar] = useState(false);
 
   useEffect(() => {
     carregarRanking().then(setRanking);
@@ -34,13 +35,22 @@ export default function App() {
     setTela("quiz");
   }
 
-  async function finalizarQuiz(pontos, total) {
+    async function finalizarQuiz(pontos, total) {
     setPontuacao(pontos);
     setTotalPerguntas(total);
     const resultado = { nome, disciplina, pontos, total, data: new Date().toISOString() };
-    const atualizado = await salvarResultado(resultado);
-    setRanking(atualizado);
+    const { sucesso, ranking } = await salvarResultado(resultado);
+    setRanking(ranking);
+    setErroAoSalvar(!sucesso);
     setTela("resultado");
+  }
+
+  function reiniciar() {
+    setNome("");
+    setDisciplina("");
+    setPontuacao(0);
+    setErroAoSalvar(false);
+    setTela("menu");
   }
 
   function reiniciar() {
@@ -66,7 +76,14 @@ export default function App() {
           {tela === "cadastro" && <Cadastro aoConfirmar={confirmarCadastro} />}
           {tela === "quiz" && <Quiz aoFinalizar={finalizarQuiz} />}
           {tela === "resultado" && (
-            <Resultado nome={nome} pontuacao={pontuacao} total={totalPerguntas} aoVerRanking={irParaRanking} aoJogarNovamente={reiniciar} />
+            <Resultado
+              nome={nome}
+              pontuacao={pontuacao}
+              total={totalPerguntas}
+              erroAoSalvar={erroAoSalvar}
+              aoVerRanking={irParaRanking}
+              aoJogarNovamente={reiniciar}
+            />
           )}
           {tela === "ranking" && <Ranking ranking={ranking} aoVoltar={() => setTela("menu")} aoJogarNovamente={reiniciar} />}
           {tela === "comentarios" && <Comentarios aoVoltar={() => setTela("menu")} />}
