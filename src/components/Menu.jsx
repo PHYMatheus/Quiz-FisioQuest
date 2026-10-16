@@ -38,29 +38,26 @@ export default function Menu({ aoJogar, aoVerRanking, aoVerComentarios, aoVerSob
         className="qz-flutuar"
         src={logo}
         alt="FisioQuest"
-        style={{ display: "block", margin: "8px auto 8px auto", width: "100%", maxWidth: "280px", "--atraso": "0s" }}
+        style={{ display: "block", margin: "8px auto 32px auto", width: "100%", maxWidth: "280px", "--atraso": "0s" }}
       />
-      <p className="qz-entrada" style={{ color: "#9A9DA6", fontSize: "15px", margin: "0 0 32px", "--atraso": "0.2s" }}>
-        Teste seus conhecimentos e dispute o topo do ranking
-      </p>
       <button
         className="qz-btn qz-pulsar"
         onClick={aoJogar}
-        style={{ background: "var(--accent)", color: "#0E0F12", padding: "14px 32px", borderRadius: "12px", fontSize: "16px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "12px", "--atraso": "0.35s" }}
+        style={{ background: "var(--accent)", color: "#0E0F12", padding: "14px 32px", borderRadius: "12px", fontSize: "16px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "12px", "--atraso": "0.25s" }}
       >
         <Play size={18} fill="#0E0F12" /> Jogar
       </button>
       <button
         className="qz-btn qz-entrada"
         onClick={aoVerRanking}
-        style={{ background: "transparent", color: "#9A9DA6", padding: "13px 32px", borderRadius: "12px", fontSize: "15px", width: "100%", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "12px", "--atraso": "0.5s" }}
+        style={{ background: "transparent", color: "#9A9DA6", padding: "13px 32px", borderRadius: "12px", fontSize: "15px", width: "100%", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "12px", "--atraso": "0.4s" }}
       >
         <Medal size={18} /> Ver ranking
       </button>
       <button
         className="qz-btn qz-entrada"
         onClick={aoVerComentarios}
-        style={{ background: "transparent", color: "#9A9DA6", padding: "13px 32px", borderRadius: "12px", fontSize: "15px", width: "100%", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", "--atraso": "0.65s" }}
+        style={{ background: "transparent", color: "#9A9DA6", padding: "13px 32px", borderRadius: "12px", fontSize: "15px", width: "100%", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", "--atraso": "0.55s" }}
       >
         <MessageCircle size={18} /> Comentários
       </button>
