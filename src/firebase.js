@@ -107,8 +107,11 @@ export async function salvarResultado(entrada) {
 }
 
 // -----------------------------------------------------------------------------
-// CONTADOR DE ALCANCE (visitantes únicos)
+// CONTADOR DE ALCANCE 
 // -----------------------------------------------------------------------------
+
+// Aqui o Objetivo foi evitar que o contador de visitantes conte a mesma pessoa Várias vezes e Trazer um dado falso para Turma,
+// que precisa Saber quantas pessoas diferentes jogaram o Quiz. Para isso, usei o localStorage do navegador para armazenar um ID único para cada visitante.
 export async function registrarAcesso() {
   try {
     const id = obterIdDispositivo();

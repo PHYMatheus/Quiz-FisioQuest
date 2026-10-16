@@ -1,6 +1,5 @@
-// Paleta fixa em tons de verde.
-// Para ajustar as cores do jogo, mude só os valores abaixo — eles se
-// propagam para o app inteiro via CSS variables (--accent, --accent-claro, --accent-escuro).
+// Paleta de Cores escolhida pela turma de Fisioterapia.
+
 export const TEMA = {
   accent: "#43B77A",
   claro: "#8FDBAF",
