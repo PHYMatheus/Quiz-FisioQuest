@@ -1,14 +1,10 @@
-// Banco de perguntas — 18 fáceis, 9 médias, 7 difíceis (34 no total).
-// "dificuldade" aceita: "facil" | "medio" | "dificil".
-// "imagem" pode ser um emoji (como está agora) ou uma URL de imagem —
-// nesse caso, troque a renderização no Quiz.jsx de texto para <img src={pergunta.imagem} />.
-// "correta" é o índice (começando em 0) da alternativa certa dentro do array "alternativas".
+// Banco de Perguntas do Jogo
+
 export const PERGUNTAS = [
   // ---------- FÁCEIS (18) ----------
   { id: 1, dificuldade: "facil", tema: "Anatomia", imagem: "🧠", texto: "Qual estrutura do sistema nervoso central é responsável principalmente pelo equilíbrio e pela coordenação dos movimentos?", alternativas: ["Cerebelo", "Hipotálamo", "Medula espinhal", "Tálamo"], correta: 0 },
   { id: 2, dificuldade: "facil", tema: "Bioquímica", imagem: "🧬", texto: "Qual é a principal função das proteínas no organismo?", alternativas: ["Apenas fornecer energia", "Participar de estruturas e funções do organismo", "Armazenar oxigênio nos pulmões", "Produzir água"], correta: 1 },
   { id: 3, dificuldade: "facil", tema: "Biofísica", imagem: "💧", texto: "O que estuda a dinâmica dos fluidos biológicos?", alternativas: ["O movimento dos fluidos no organismo", "Apenas os ossos", "Apenas os músculos", "A formação dos cromossomos"], correta: 0 },
-  { id: 4, dificuldade: "facil", tema: "Fisiologia", imagem: "❤️", texto: "Qual é a principal função do sistema cardiovascular?", alternativas: ["Produzir hormônios", "Transportar substâncias pelo corpo", "Produzir movimentos voluntários", "Formar os ossos"], correta: 1 },
   { id: 5, dificuldade: "facil", tema: "Anatomia", imagem: "🦴", texto: "Qual é o maior osso do corpo humano?", alternativas: ["Tíbia", "Fêmur", "Úmero", "Rádio"], correta: 1 },
   { id: 6, dificuldade: "facil", tema: "Anatomia", imagem: "🧠", texto: "Qual das alternativas apresenta estruturas que fazem parte do Sistema Nervoso Central (SNC)?", alternativas: ["Nervos e gânglios", "Encéfalo e medula espinal", "Nervos cranianos e nervos espinais", "Músculos e tendões"], correta: 1 },
   { id: 7, dificuldade: "facil", tema: "Anatomia", imagem: "🧠", texto: "Qual parte do neurônio é responsável principalmente por receber estímulos?", alternativas: ["Axônio", "Núcleo", "Dendritos", "Bainha de mielina"], correta: 2 },
@@ -23,7 +19,6 @@ export const PERGUNTAS = [
   { id: 16, dificuldade: "facil", tema: "Citologia", imagem: "💧", texto: "Fluidos biológicos: qual dos seguintes é considerado um fluido do compartimento extracelular?", alternativas: ["Citoplasma", "Líquido intersticial", "Matriz nuclear", "Líquido intracelular", "Conteúdo mitocondrial"], correta: 3 },
   { id: 17, dificuldade: "facil", tema: "Histologia", imagem: "🔬", texto: "Qual tecido é especializado na transmissão de impulsos nervosos?", alternativas: ["Epitelial", "Conjuntivo", "Muscular", "Nervoso", "Adiposo"], correta: 3 },
   { id: 18, dificuldade: "facil", tema: "Anatomia", imagem: "❤️", texto: "Qual sistema é responsável principalmente pelo transporte de oxigênio, nutrientes e hormônios pelo organismo?", alternativas: ["Nervoso", "Digestório", "Cardiovascular", "Respiratório", "Linfático"], correta: 2 },
-
   // ---------- MÉDIAS (9) ----------
   { id: 19, dificuldade: "medio", tema: "Anatomia", imagem: "🧠", texto: "Sobre as meninges e a proteção do sistema nervoso central, assinale a alternativa CORRETA:", alternativas: ["A pia-máter é a camada mais externa e está em contato direto com o crânio.", "A dura-máter é a camada mais interna e fica diretamente aderida ao tecido nervoso.", "A aracnoide está localizada entre a dura-máter e a pia-máter.", "As meninges estão presentes apenas ao redor do encéfalo, não envolvendo a medula espinal."], correta: 2 },
   { id: 20, dificuldade: "medio", tema: "Anatomia", imagem: "🧠", texto: "Um neurônio apresenta uma região de substância branca rica em axônios mielinizados. Considerando a organização do tecido nervoso, qual alternativa explica melhor essa característica?", alternativas: ["A substância branca é formada principalmente por corpos celulares neuronais.", "A substância branca apresenta grande quantidade de prolongamentos neuronais e mielina.", "A substância branca é constituída exclusivamente por células da glia.", "A substância branca é formada principalmente por dendritos sem mielina."], correta: 1 },
@@ -34,7 +29,6 @@ export const PERGUNTAS = [
   { id: 25, dificuldade: "medio", tema: "Anatomia", imagem: "💪", texto: "Qual músculo é o principal responsável pela abdução do ombro entre aproximadamente 15° e 90°?", alternativas: ["Deltoide", "Peitoral maior", "Latíssimo do dorso", "Redondo maior"], correta: 0 },
   { id: 26, dificuldade: "medio", tema: "Anatomia", imagem: "✋", texto: "Uma lesão do nervo mediano pode comprometer principalmente qual movimento da mão?", alternativas: ["Oposição do polegar", "Extensão do punho", "Adução do quinto dedo", "Extensão do cotovelo"], correta: 0 },
   { id: 27, dificuldade: "medio", tema: "Eletrogênese + Fisiologia", imagem: "⚡", texto: "Durante um potencial de ação, a abertura de canais de Na⁺ dependentes de voltagem provoca principalmente:", alternativas: ["Hiperpolarização", "Despolarização", "Repolarização", "Bloqueio da membrana", "Redução da permeabilidade ao Na⁺"], correta: 1 },
-
   // ---------- DIFÍCEIS (7) ----------
   { id: 28, dificuldade: "dificil", tema: "Biofísica", imagem: "⚡", texto: "Durante um potencial de ação em um neurônio mielinizado, ocorre uma alteração rápida do potencial da membrana, seguida de repolarização. Qual situação explica melhor por que a transmissão do impulso em um axônio mielinizado é mais rápida?", alternativas: ["O potencial de ação ocorre continuamente em toda a extensão do axônio, aumentando a velocidade da transmissão.", "A mielina permite que o potencial de ação seja produzido exclusivamente no corpo celular.", "O impulso ocorre nos nódulos de Ranvier, realizando uma condução saltatória pelos segmentos mielinizados.", "A mielina aumenta a passagem de íons por toda a membrana do axônio."], correta: 2 },
   { id: 29, dificuldade: "dificil", tema: "Anatomia", imagem: "🧠", texto: "Um paciente apresenta uma lesão na região cervical da medula espinal. Considerando a organização do sistema nervoso, qual consequência é mais coerente com essa lesão?", alternativas: ["A lesão afetará somente informações relacionadas ao encéfalo, sem interferir nas regiões abaixo da lesão.", "Como a medula pertence ao SNP, a lesão não poderá comprometer funções do SNC.", "A lesão poderá interferir na comunicação entre o encéfalo e regiões do corpo localizadas abaixo do nível da lesão.", "A lesão comprometerá exclusivamente os nervos cranianos, pois eles fazem conexão direta com a medula."], correta: 2 },
@@ -45,7 +39,6 @@ export const PERGUNTAS = [
   { id: 34, dificuldade: "dificil", tema: "Histologia", imagem: "🔬", texto: "O tecido epitelial possui pouca matriz extracelular e células muito próximas. Essa característica está relacionada principalmente à sua função de:", alternativas: ["Armazenar energia e produzir calor", "Revestir superfícies e formar barreiras", "Produzir contrações voluntárias", "Transmitir impulsos elétricos", "Sustentar exclusivamente os ossos"], correta: 1 },
 ];
 
-// Embaralha um array sem alterar o original (Fisher-Yates).
 function embaralhar(array) {
   const copia = [...array];
   for (let i = copia.length - 1; i > 0; i--) {
@@ -55,9 +48,7 @@ function embaralhar(array) {
   return copia;
 }
 
-// Sorteia perguntas para uma partida: por padrão 5 fáceis + 5 médias + 5
-// difíceis (15 no total), em ordem embaralhada. Se algum nível não tiver
-// perguntas suficientes no banco, pega todas as disponíveis daquele nível.
+
 export function sortearPerguntas(qtdPorNivel = 5) {
   const facil = embaralhar(PERGUNTAS.filter((p) => p.dificuldade === "facil")).slice(0, qtdPorNivel);
   const medio = embaralhar(PERGUNTAS.filter((p) => p.dificuldade === "medio")).slice(0, qtdPorNivel);

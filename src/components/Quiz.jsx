@@ -3,8 +3,7 @@ import { Check, X, ArrowRight } from "lucide-react";
 import { sortearPerguntas } from "../data/perguntas.js";
 
 export default function Quiz({ aoFinalizar }) {
-  // Sorteia uma vez, quando o componente monta (ou seja, toda vez que uma
-  // nova partida começa) — 5 fáceis + 5 médias + 5 difíceis, embaralhadas.
+//Sorteados de Perguntas! Aqui ele vai fazer o sorteio das Perguntas pelo nivél de dificuldade.
   const [perguntas] = useState(() => sortearPerguntas(5));
   const [indiceAtual, setIndiceAtual] = useState(0);
   const [pontuacao, setPontuacao] = useState(0);
@@ -24,9 +23,7 @@ export default function Quiz({ aoFinalizar }) {
   }
 
   async function proxima() {
-    // Trava cliques repetidos no botão final — sem isso, um duplo clique (ou
-    // um toque "chicletado" na tela) podia salvar o mesmo resultado duas
-    // vezes no ranking.
+  //Travar duplo clique acidental.
     if (enviando) return;
 
     if (indiceAtual + 1 < perguntas.length) {
@@ -54,8 +51,6 @@ export default function Quiz({ aoFinalizar }) {
         <div style={{ height: "100%", width: `${((indiceAtual + 1) / perguntas.length) * 100}%`, background: "var(--accent)", transition: "width 0.3s ease" }} />
       </div>
 
-      {/* Se "imagem" for uma URL em vez de emoji, troque esta div por:
-          <img src={pergunta.imagem} alt="" style={{ maxWidth: "100%", borderRadius: 12, marginBottom: 12 }} /> */}
       <div style={{ fontSize: "40px", textAlign: "center", marginBottom: "12px" }}>{pergunta.imagem}</div>
 
       <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "18px", fontWeight: 700, textAlign: "center", margin: "0 0 24px", lineHeight: 1.4 }}>

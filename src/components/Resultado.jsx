@@ -1,6 +1,15 @@
 import { Trophy, AlertTriangle } from "lucide-react";
 
+function obterStatus(pontos, total) {
+  if (pontos === total) return { emoji: "🏆", texto: "Espetacular! Você zerou o game!" };
+  if (pontos >= 8) return { emoji: "👏", texto: "Muito bom!" };
+  if (pontos >= 5) return { emoji: "🙂", texto: "Bom! Mas pode melhorar." };
+  return { emoji: "📚", texto: "Ixi! Precisa estudar um pouco mais." };
+}
+
 export default function Resultado({ nome, pontuacao, total, erroAoSalvar, aoVerRanking, aoJogarNovamente }) {
+  const status = obterStatus(pontuacao, total);
+
   return (
     <div style={{ textAlign: "center" }}>
       <Trophy size={44} color="var(--accent)" style={{ marginBottom: "12px" }} />
@@ -8,9 +17,12 @@ export default function Resultado({ nome, pontuacao, total, erroAoSalvar, aoVerR
         Quiz concluído!
       </h2>
       <p style={{ color: "#9A9DA6", fontSize: "14px", margin: "0 0 20px" }}>{nome}, aqui está seu resultado</p>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "44px", fontWeight: 600, color: "var(--accent)", marginBottom: "24px" }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "44px", fontWeight: 600, color: "var(--accent)", marginBottom: "12px" }}>
         {pontuacao}<span style={{ fontSize: "20px", color: "#9A9DA6" }}> / {total}</span>
       </div>
+      <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--accent-claro)", margin: "0 0 24px" }}>
+        {status.emoji} {status.texto}
+      </p>
 
       {erroAoSalvar && (
         <div style={{

@@ -1,14 +1,13 @@
 import { ArrowLeft, Info } from "lucide-react";
 
-// Edite o texto abaixo com as informações reais da turma. O "badge" (a
-// etiqueta verde) é pensado pra ficar curto — nome da turma/curso — e o
-// parágrafo abaixo dele pode ter mais detalhes (instituição, disciplina,
-// semestre, integrantes etc.)
 const ETIQUETA = "Turma de Fisioterapia";
 const TEXTO_SOBRE =
   "Este quiz foi criado pela turma de Fisioterapia como um projeto para revisar " +
   "conteúdos das disciplinas do curso de forma leve e interativa. Cada partida " +
   "sorteia perguntas fáceis, médias e difíceis, e o ranking mostra quem mais se destacou.";
+
+
+const INTEGRANTES = ["Manuella Yasmim", "Pedro Esterban", "Iara Vitória", "João Lucas", "Suzana Gabriele", "Matheus Henrique", "Felipe Augusto" ];
 
 export default function Sobre({ aoVoltar }) {
   return (
@@ -48,6 +47,21 @@ export default function Sobre({ aoVoltar }) {
         <p style={{ fontSize: "14px", color: "#D5D8DC", lineHeight: 1.6, margin: 0 }}>
           {TEXTO_SOBRE}
         </p>
+
+        <p style={{ fontSize: "12px", color: "#9A9DA6", margin: "20px 0 8px" }}>Desenvolvido por</p>
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          {INTEGRANTES.map((integrante) => (
+            <li
+              key={integrante}
+              style={{
+                background: "#123321", border: "1px solid #245239", borderRadius: "999px",
+                padding: "6px 12px", fontSize: "13px", color: "#F5F5F2",
+              }}
+            >
+              {integrante}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

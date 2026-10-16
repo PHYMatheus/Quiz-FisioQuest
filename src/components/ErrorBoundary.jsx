@@ -1,10 +1,5 @@
 import { Component } from "react";
 
-// Rede de segurança contra "tela branca da morte": se qualquer erro
-// inesperado acontecer em algum componente (ex: dado vindo nulo/undefined
-// de algum lugar, algo que não previmos), em vez da tela inteira sumir sem
-// nenhuma explicação, mostramos uma mensagem simples com um botão pra
-// recarregar. Essencial numa demonstração ao vivo pra turma.
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
