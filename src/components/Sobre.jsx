@@ -1,13 +1,19 @@
 import { ArrowLeft, Info } from "lucide-react";
 
-const ETIQUETA = "Turma de Fisioterapia";
+const ETIQUETA = "Turma 2° Periodo - Fisioterapia";
 const TEXTO_SOBRE =
   "Este quiz foi criado pela turma de Fisioterapia como um projeto para revisar " +
   "conteúdos das disciplinas do curso de forma leve e interativa. Cada partida " +
   "sorteia perguntas fáceis, médias e difíceis, e o ranking mostra quem mais se destacou.";
 
 
-const INTEGRANTES = ["Manuella Yasmim", "Pedro Esterban", "Iara Vitória", "João Lucas", "Suzana Gabriele", "Matheus Henrique", "Felipe Augusto" ];
+const INTEGRANTES = ["Manuella Yasmim de Paula Santos", 
+  "Pedro Esterban Richard bruce", 
+  "Iara Vitória de Araújo Santana", 
+  "João Lucas Gonçalves Simplicio", 
+  "Suzana Gabriele de Araújo Silva", 
+  "Matheus Henrique Fortunato de Melo da Silva", 
+  "Felipe Augusto Marinho de Oliveira" ];
 
 export default function Sobre({ aoVoltar }) {
   return (
@@ -48,7 +54,7 @@ export default function Sobre({ aoVoltar }) {
           {TEXTO_SOBRE}
         </p>
 
-        <p style={{ fontSize: "12px", color: "#9A9DA6", margin: "20px 0 8px" }}>Desenvolvido por</p>
+        <p style={{ fontSize: "12px", color: "#9A9DA6", margin: "20px 0 8px" }}>Integrantes:</p>
         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "8px" }}>
           {INTEGRANTES.map((integrante) => (
             <li
