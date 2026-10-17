@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Send, ChevronDown, ChevronUp } from "lucide-react";
 import { carregarComentarios, salvarComentario } from "../firebase.js";
 
 const REACOES = ["😍", "😄", "👍", "😐", "😕"];
@@ -7,6 +7,7 @@ const REACOES = ["😍", "😄", "👍", "😐", "😕"];
 export default function Comentarios({ aoVoltar }) {
   const [comentarios, setComentarios] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [mostrarLista, setMostrarLista] = useState(false);
   const [nome, setNome] = useState("");
   const [reacao, setReacao] = useState(null);
   const [texto, setTexto] = useState("");
@@ -53,6 +54,11 @@ export default function Comentarios({ aoVoltar }) {
     setTexto("");
     setTimeout(() => setEnviado(false), 2500);
   }
+
+  let rotuloLista = `Ver comentários (${comentarios.length})`;
+  if (carregando) rotuloLista = "Carregando comentários...";
+  else if (mostrarLista) rotuloLista = "Ocultar comentários";
+
   return (
     <div>
       <button
@@ -130,28 +136,36 @@ export default function Comentarios({ aoVoltar }) {
         </button>
       </div>
 
-      {/* Lista de comentários */}
-      <p style={{ fontSize: "13px", color: "#9A9DA6", margin: "0 0 10px" }}>
-        {comentarios.length > 0 ? `${comentarios.length} comentário${comentarios.length > 1 ? "s" : ""}` : "Comentários dos jogadores"}
-      </p>
+      <button
+        className="qz-btn"
+        onClick={() => setMostrarLista((atual) => !atual)}
+        disabled={carregando}
+        aria-expanded={mostrarLista}
+        style={{ width: "100%", background: "transparent", color: "#9A9DA6", padding: "12px", borderRadius: "10px", fontSize: "14px", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", opacity: carregando ? 0.6 : 1 }}
+      >
+        {!carregando && (mostrarLista ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
+        {rotuloLista}
+      </button>
 
-      {carregando && <p style={{ color: "#9A9DA6", fontSize: "14px", textAlign: "center" }}>Carregando...</p>}
+      {mostrarLista && (
+        <div style={{ marginTop: "12px" }}>
+          {comentarios.length === 0 && (
+            <p style={{ color: "#9A9DA6", fontSize: "14px", textAlign: "center" }}>Ainda não tem comentários. Seja o primeiro!</p>
+          )}
 
-      {!carregando && comentarios.length === 0 && (
-        <p style={{ color: "#9A9DA6", fontSize: "14px", textAlign: "center" }}>Ainda não tem comentários. Seja o primeiro!</p>
-      )}
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "260px", overflowY: "auto" }}>
-        {comentarios.map((c, i) => (
-          <div key={i} style={{ display: "flex", gap: "10px", padding: "12px", background: "#0A1F14", borderRadius: "10px" }}>
-            <span style={{ fontSize: "22px", lineHeight: 1 }}>{c.reacao}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "2px" }}>{c.nome}</div>
-              <div style={{ fontSize: "13px", color: "#D5D8DC", lineHeight: 1.4, wordBreak: "break-word" }}>{c.texto}</div>
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "260px", overflowY: "auto" }}>
+            {comentarios.map((c, i) => (
+              <div key={i} style={{ display: "flex", gap: "10px", padding: "12px", background: "#0A1F14", borderRadius: "10px" }}>
+                <span style={{ fontSize: "22px", lineHeight: 1 }}>{c.reacao}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "2px" }}>{c.nome}</div>
+                  <div style={{ fontSize: "13px", color: "#D5D8DC", lineHeight: 1.4, wordBreak: "break-word" }}>{c.texto}</div>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
