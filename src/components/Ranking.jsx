@@ -1,7 +1,18 @@
-import { Medal, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { Medal, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+
+const TAMANHO_PODIO = 3;
+// Até que posição o ranking aparece antes de o jogador pedir "Ver ranking completo".
+const LIMITE_RESUMO = 5;
 
 export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovamente }) {
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+
   const rankingOrdenado = [...ranking].sort((a, b) => b.pontos - a.pontos);
+  const restante = rankingOrdenado.slice(TAMANHO_PODIO);
+  const quantidadeNoResumo = LIMITE_RESUMO - TAMANHO_PODIO;
+  const restanteVisivel = mostrarTodos ? restante : restante.slice(0, quantidadeNoResumo);
+  const quantidadeOculta = restante.length - quantidadeNoResumo;
 
   return (
     <div>
@@ -40,7 +51,7 @@ export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovament
 
       {rankingOrdenado.length > 0 && (
         <>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "6px", marginBottom: "28px", height: "140px" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "6px", marginBottom: "28px", height: "180px" }}>
             {[rankingOrdenado[1], rankingOrdenado[0], rankingOrdenado[2]].map((item, pos) => {
               if (!item) return <div key={pos} style={{ flex: 1 }} />;
               const alturas = [90, 120, 70];
@@ -69,9 +80,9 @@ export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovament
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {rankingOrdenado.slice(3).map((item, i) => (
+            {restanteVisivel.map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", background: "#0A1F14", borderRadius: "10px" }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: "#63666F", width: "20px" }}>{i + 4}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: "#63666F", width: "20px" }}>{i + TAMANHO_PODIO + 1}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "13px", fontWeight: 600 }}>{item.nome}</div>
                   <div style={{ fontSize: "11px", color: "#9A9DA6" }}>{item.disciplina}</div>
@@ -80,6 +91,18 @@ export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovament
               </div>
             ))}
           </div>
+
+          {quantidadeOculta > 0 && (
+            <button
+              className="qz-btn"
+              onClick={() => setMostrarTodos((atual) => !atual)}
+              aria-expanded={mostrarTodos}
+              style={{ width: "100%", background: "transparent", color: "#9A9DA6", padding: "12px", borderRadius: "10px", fontSize: "14px", border: "1px solid #245239", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "10px" }}
+            >
+              {mostrarTodos ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {mostrarTodos ? "Mostrar menos" : `Ver ranking completo (+${quantidadeOculta})`}
+            </button>
+          )}
         </>
       )}
 
