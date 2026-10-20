@@ -62,14 +62,18 @@ export default function App() {
     setTela("menu");
   }
 
-  // Só a tela de resultado muda de tema (vermelho / dourado), as outras ficam no verde padrão.
   const statusResultado = obterStatus(pontuacao, totalPerguntas);
   const tema = tela === "resultado" ? statusResultado.tema : TEMAS_RESULTADO.padrao;
 
+  useEffect(() => {
+    document.documentElement.style.background = tema.fundoCard;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", tema.fundoCard);
+  }, [tema.fundoCard]);
+
   return (
-    <div style={{ ...cssVarsDoTema(tema), background: tema.fundoPagina, transition: "background 0.4s ease", minHeight: "100dvh", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
+    <div style={{ ...cssVarsDoTema(tema), minHeight: "100dvh", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
       <div className="qz-wrap">
-        <div className="qz-card" style={{ width: "100%", background: tema.fundoCard, transition: "background 0.4s ease", borderRadius: "20px", padding: "36px 28px", boxSizing: "border-box" }}>
+        <div className="qz-card" style={{ background: tema.fundoCard, transition: "background 0.4s ease" }}>
           {tela === "menu" && (
             <Menu
               aoJogar={() => setTela("cadastro")}
