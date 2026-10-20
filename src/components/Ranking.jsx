@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Medal, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 
 const TAMANHO_PODIO = 3;
-// Até que posição o ranking aparece antes de o jogador pedir "Ver ranking completo".
 const LIMITE_RESUMO = 5;
 
 export default function Ranking({ ranking, carregando, aoVoltar, aoJogarNovamente }) {

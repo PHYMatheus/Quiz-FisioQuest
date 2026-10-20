@@ -5,13 +5,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* A cor de fundo da página é a mesma do jogo (o App troca ela na tela de resultado). */
+html {
+  background: #123321;
+}
+
 html,
 body,
 #root {
   margin: 0;
   padding: 0;
   min-height: 100dvh;
-  background: #0a1f14;
   font-family: "Inter", sans-serif;
   color: #f5f5f2;
 }
@@ -58,14 +62,21 @@ body,
   box-sizing: border-box;
 }
 
+/* O jogo ocupa a tela inteira, sem moldura de "caixa" (no desktop fica numa coluna centralizada). */
+.qz-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 28px calc(36px + env(safe-area-inset-bottom, 0px)) 28px;
+}
+
 @media (max-width: 520px) {
   .qz-wrap {
     max-width: 100%;
   }
   .qz-card {
-    border-radius: 0 !important;
-    min-height: 100dvh !important;
-    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)) 20px !important;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)) 20px;
   }
 }
 
@@ -117,7 +128,62 @@ body,
 @media (prefers-reduced-motion: reduce) {
   .qz-entrada,
   .qz-flutuar,
-  .qz-pulsar {
+  .qz-pulsar,
+  .qz-bolha {
     animation: none;
+  }
+}
+
+/* Menu inicial: a logo fica no topo, as bolhas flutuam ao redor e os botões centralizam no espaço que sobra embaixo. */
+.qz-menu {
+  flex: 1;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* Camada só de enfeite (bolhas), fixa na região da logo. */
+.qz-menu-decoracao {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 440px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.qz-bolha {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(143, 219, 175, 0.16);
+  border: 1px solid rgba(143, 219, 175, 0.25);
+  animation: qz-flutuar 6s ease-in-out var(--atraso, 0s) infinite;
+}
+
+.qz-menu-botoes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 6dvh; /* sobe um pouquinho o conjunto: o centro "ótico" fica acima do centro exato */
+}
+
+.qz-menu-jogar {
+  background: linear-gradient(135deg, var(--accent-claro), var(--accent)) !important;
+}
+
+.qz-menu-secundario {
+  background: rgba(10, 31, 20, 0.55);
+  color: #c9ccd2;
+  border: 1px solid #245239;
+  transition: transform 0.12s ease, opacity 0.12s ease, border-color 0.2s ease, color 0.2s ease;
+}
+@media (hover: hover) {
+  .qz-menu-secundario:hover {
+    border-color: var(--accent);
+    color: #ffffff;
   }
 }

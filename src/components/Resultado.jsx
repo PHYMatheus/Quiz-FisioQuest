@@ -1,18 +1,16 @@
 import { Trophy, AlertTriangle } from "lucide-react";
 
-function obterStatus(pontos, total) {
-  if (pontos === total) return { emoji: "🏆", texto: "Espetacular! Você zerou o game!" };
-  if (pontos >= 8) return { emoji: "👏", texto: "Muito bom!" };
-  if (pontos >= 5) return { emoji: "🙂", texto: "Bom! Mas pode melhorar." };
-  return { emoji: "📚", texto: "Ixi! Precisa estudar um pouco mais." };
-}
-
-export default function Resultado({ nome, pontuacao, total, erroAoSalvar, aoVerRanking, aoJogarNovamente }) {
-  const status = obterStatus(pontuacao, total);
-
+export default function Resultado({ nome, pontuacao, total, status, erroAoSalvar, aoVerRanking, aoJogarNovamente }) {
   return (
     <div style={{ textAlign: "center" }}>
-      <Trophy size={44} color="var(--accent)" style={{ marginBottom: "12px" }} />
+      {status.destaque ? (
+        <div className="qz-flutuar" style={{ fontSize: "84px", lineHeight: 1, marginBottom: "12px" }}>
+          {status.emoji}
+        </div>
+      ) : (
+        <Trophy size={44} color="var(--accent)" style={{ marginBottom: "12px" }} />
+      )}
+
       <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "22px", fontWeight: 700, margin: "0 0 4px" }}>
         Quiz concluído!
       </h2>
@@ -20,8 +18,8 @@ export default function Resultado({ nome, pontuacao, total, erroAoSalvar, aoVerR
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "44px", fontWeight: 600, color: "var(--accent)", marginBottom: "12px" }}>
         {pontuacao}<span style={{ fontSize: "20px", color: "#9A9DA6" }}> / {total}</span>
       </div>
-      <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--accent-claro)", margin: "0 0 24px" }}>
-        {status.emoji} {status.texto}
+      <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: `${status.tamanhoTexto}px`, fontWeight: 700, lineHeight: 1.25, color: "var(--accent-claro)", margin: "0 0 24px" }}>
+        {!status.destaque && `${status.emoji} `}{status.texto}
       </p>
 
       {erroAoSalvar && (
@@ -48,7 +46,7 @@ export default function Resultado({ nome, pontuacao, total, erroAoSalvar, aoVerR
       <button
         className="qz-btn"
         onClick={aoJogarNovamente}
-        style={{ width: "100%", background: "transparent", color: "#9A9DA6", padding: "13px", borderRadius: "12px", fontSize: "14px", border: "1px solid #245239" }}
+        style={{ width: "100%", background: "transparent", color: "#9A9DA6", padding: "13px", borderRadius: "12px", fontSize: "14px", border: `1px solid ${status.tema.borda}` }}
       >
         Jogar novamente
       </button>

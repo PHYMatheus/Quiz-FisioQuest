@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { cssVarsTema } from "./theme.js";
+import { TEMAS_RESULTADO, cssVarsDoTema } from "./theme.js";
+import { obterStatus } from "./statusResultado.js";
 import { carregarRanking, salvarResultado, registrarAcesso } from "./firebase.js";
 import Menu from "./components/Menu.jsx";
 import Cadastro from "./components/Cadastro.jsx";
@@ -21,20 +22,20 @@ export default function App() {
   const [erroAoSalvar, setErroAoSalvar] = useState(false);
 
   useEffect(() => {
-  carregarRanking().then((lista) => {
-    setRanking(lista);
-    setCarregandoRanking(false);
-  });
-  registrarAcesso().then(setVisitas);
+    carregarRanking().then((lista) => {
+      setRanking(lista);
+      setCarregandoRanking(false);
+    });
+    registrarAcesso().then(setVisitas);
   }, []);
 
   function irParaRanking() {
-  setCarregandoRanking(true);
-  carregarRanking().then((lista) => {
-    setRanking(lista);
-    setCarregandoRanking(false);
-  });
-  setTela("ranking");
+    setCarregandoRanking(true);
+    carregarRanking().then((lista) => {
+      setRanking(lista);
+      setCarregandoRanking(false);
+    });
+    setTela("ranking");
   }
 
   function confirmarCadastro({ nome, disciplina }) {
@@ -61,10 +62,18 @@ export default function App() {
     setTela("menu");
   }
 
+  const statusResultado = obterStatus(pontuacao, totalPerguntas);
+  const tema = tela === "resultado" ? statusResultado.tema : TEMAS_RESULTADO.padrao;
+
+  useEffect(() => {
+    document.documentElement.style.background = tema.fundoCard;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", tema.fundoCard);
+  }, [tema.fundoCard]);
+
   return (
-    <div style={{ ...cssVarsTema, minHeight: "100dvh", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
+    <div style={{ ...cssVarsDoTema(tema), minHeight: "100dvh", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
       <div className="qz-wrap">
-        <div className="qz-card" style={{ width: "100%", background: "#123321", borderRadius: "20px", padding: "36px 28px", boxSizing: "border-box" }}>
+        <div className="qz-card" style={{ background: tema.fundoCard, transition: "background 0.4s ease" }}>
           {tela === "menu" && (
             <Menu
               aoJogar={() => setTela("cadastro")}
@@ -81,12 +90,15 @@ export default function App() {
               nome={nome}
               pontuacao={pontuacao}
               total={totalPerguntas}
+              status={statusResultado}
               erroAoSalvar={erroAoSalvar}
               aoVerRanking={irParaRanking}
               aoJogarNovamente={reiniciar}
             />
           )}
-          {tela === "ranking" && (<Ranking ranking={ranking} carregando={carregandoRanking} aoVoltar={() => setTela("menu")} aoJogarNovamente={reiniciar} />)}
+          {tela === "ranking" && (
+            <Ranking ranking={ranking} carregando={carregandoRanking} aoVoltar={() => setTela("menu")} aoJogarNovamente={reiniciar} />
+          )}
           {tela === "comentarios" && <Comentarios aoVoltar={() => setTela("menu")} />}
           {tela === "sobre" && <Sobre aoVoltar={() => setTela("menu")} />}
         </div>

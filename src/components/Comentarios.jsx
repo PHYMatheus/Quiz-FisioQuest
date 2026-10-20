@@ -136,7 +136,6 @@ export default function Comentarios({ aoVoltar }) {
         </button>
       </div>
 
-      {/* Lista de comentários: fica escondida até o jogador pedir */}
       <button
         className="qz-btn"
         onClick={() => setMostrarLista((atual) => !atual)}

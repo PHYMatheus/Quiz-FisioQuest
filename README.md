@@ -4,7 +4,7 @@
 
 <br />
 
-[![Jogar agora](https://img.shields.io/badge/%E2%96%B6%20JOGAR%20AGORA-43B77A?style=for-the-badge)](https://SEU-PROJETO.vercel.app)
+[![Jogar agora](https://img.shields.io/badge/%E2%96%B6%20JOGAR%20AGORA-43B77A?style=for-the-badge)](https://quiz-fisio-quest.vercel.app/)
 
 <br />
 
@@ -21,13 +21,13 @@
 <a href="#-funcionalidades">Funcionalidades</a> ·
 <a href="#-arquitetura">Arquitetura</a> ·
 <a href="#-rodando-localmente">Rodar</a> ·
-<a href="#-equipe">Equipe</a>
+<a href="#-Desenvolvedor">Desenvolvedor</a>
 
 </div>
 
 ---
 
-## 🎯 Sobre o projeto
+## 📗 Sobre o projeto
 
 Estudar Fisioterapia costuma significar reler resumos e slides, e é difícil saber se o conteúdo realmente ficou.
 
@@ -230,7 +230,7 @@ O projeto é publicado na [Vercel](https://vercel.com), com deploy automático a
 
 | Nome | Contribuição | GitHub |
 | :-- | :-- | :-- |
-| **Matheus** | Desenvolvimento | [@PHYMatheus](https://github.com/PHYMatheus) |
+| **Matheus** | Desenvolvimento/Criação | [@PHYMatheus](https://github.com/PHYMatheus) |
 
 ---
 
